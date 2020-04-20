@@ -1,0 +1,6 @@
+FROM python
+RUN mkdir copycat
+WORKDIR /copycat
+COPY /copycat requirements.txt /copycat/
+RUN pip install --trusted-host pypi.python.org -r requirements.txt
+CMD ["python", "main.py"]
