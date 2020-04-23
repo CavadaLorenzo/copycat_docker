@@ -9,11 +9,8 @@ services:
       - DB_NAME=db0
       - DB_IP=192.168.1.188
       - DB_PORT=8089
-      - DEFAULT_USER=username
-      - DEFAULT_PSW=password
+      - MANAGER_IP=192.168.1.188
+      - MANAGER_PORT=7025
       - PYTHONUNBUFFERED=1
     ports:
       - 4025:4025
-    volumes:
-      - /home/lorenzo/Desktop/Dev/project/script/copycat_flask/server_list.txt:/copycat/server_list.txt
-
