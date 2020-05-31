@@ -2,19 +2,14 @@ from influxdb import InfluxDBClient
 import requests, os
 
 
-DB_IP = os.environ['DB_IP']
-DB_PORT = os.environ['DB_PORT']
-DB_NAME = os.environ['DB_NAME']
+try:    DB_IP = os.environ['DB_IP']
+except:    DB_IP = '192.168.1.188' 
+try:    DB_PORT = os.environ['DB_PORT']
+except:    DB_PORT = '8089' 
+try:    DB_NAME = os.environ['DB_NAME']
+except:    DB_NAME = 'db0' 
 
-
-# debug only
-"""
-DB_IP = '192.168.1.188' 
-DB_PORT = '8089' 
-DB_NAME = 'db0' 
-"""
-
-class Database:
+class InfluxDB_DB:
     r"""This class will handle the connection to the IfluxDB database.
     By default it connects to localhost throw the port 8086.
     This can be changed when the object Database is created specifying
@@ -43,21 +38,3 @@ class Database:
             return request_list
         except requests.exceptions.ConnectionError:
             print("ConnectionError exception, maybe the database is down?")
-
-
-    def get_servers_list(self):
-        """
-        Return a list of all the server saved on the database. Each server is represent throw 
-        a python dictionary
-        """
-        try:
-            server_list = []
-            query = "SELECT * FROM servers"
-            result_set = self.db.query(query).get_points(measurement='servers')
-            for server in result_set:
-                server_list.append(server)
-            
-            return server_list
-        except requests.exceptions.ConnectionError:
-            print("ConnectionError exception, maybe the database is down?")
-

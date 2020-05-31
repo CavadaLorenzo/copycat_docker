@@ -9,20 +9,14 @@ from flask import Flask
 from flask import request
 from flask import jsonify
 import time, requests, traceback, queue, os
-from database import Database
+from influxDB_database import InfluxDB_DB
+from postgres_database import Postgres_DB
 from collections import Counter
 
-MANAGER_IP = os.environ['MANAGER_IP']
-MANAGER_PORT = os.environ['MANAGER_PORT']
-
-
-# debug only
-"""
-DEFAULT_PSW = 'password' 
-DEFAULT_USER = 'username' 
-MANAGER_IP = '192.168.1.188' 
-MANAGER_PORT = '7025'
-"""
+try:    MANAGER_IP = os.environ['MANAGER_IP']
+except:    MANAGER_IP = '192.168.1.188' 
+try:    MANAGER_PORT = os.environ['MANAGER_PORT']
+except:    MANAGER_PORT = '7025' 
 
 app = Flask(__name__)
 
@@ -30,14 +24,14 @@ def get_server_from_db():
     """
     Return a list of the server
     """
-    db = Database()
+    db = Postgres_DB()
     return db.get_servers_list()
 
 def get_request_from_db(server, time):
     """
     Return a list of request
     """
-    db = Database()
+    db = InfluxDB_DB()
     return db.select_all_time(time, server['server_id'])
 
 def count_element(result_set):
@@ -66,12 +60,11 @@ def copycat():
         to_server = servers[1] # server where the file will be moved
         request_list = get_request_from_db(from_server, request.args.get('TIME')) # list of all the request done to the first server in the last time span
         n_request = count_element(request_list) # number of time that each file have been requested
-        
         for filename, n in n_request: # here I check if a file has been requested more than COUNT times, if yes the file will be copied to the to_server
             if n >= int(request.args.get('COUNT')):
                 print("Mooving file: " + filename + " to server: " + str(to_server['server_id']))
                 start = time.time()
-                manager = 'http://' + MANAGER_IP + ':' + MANAGER_PORT + '?server_ip=' + to_server['server_ip'] + '&server_port=' + to_server['ssh_port'] + '&filename=' + filename
+                manager = 'http://' + MANAGER_IP + ':' + MANAGER_PORT + '?server_ip=' + to_server['server_ip'] + '&server_port=' + to_server['server_ssh_port'] + '&filename=' + filename
                 print(manager)
                 check = requests.get(manager).json()
                 end = time.time()
